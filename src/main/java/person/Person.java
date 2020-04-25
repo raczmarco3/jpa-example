@@ -34,27 +34,4 @@ public class Person {
 
     private String profession;
 
-    public void setName(String name){
-        this.name = name;
-    }
-
-    public void setDob(LocalDate date){
-        this.dob = date;
-    }
-
-    public void setGender(Gender gender){
-        this.gender = gender;
-    }
-
-    public void setAddress(Address address){
-        this.address = address;
-    }
-
-    public void setEmail(String email){
-        this.email = email;
-    }
-
-    public void setProfession(String profession){
-        this.profession = profession;
-    }
 }

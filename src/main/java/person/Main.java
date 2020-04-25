@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.Year;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -19,50 +20,44 @@ public class Main {
 
     private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-example");
 
-    private static void createPeopleSet() {
+
+    private static void CreatePeopleSet(int darab) throws ParseException {
         EntityManager em = emf.createEntityManager();
         try {
             em.getTransaction().begin();
-           for(int i=0; i<5; i++){
-               var random = RandomPerson();
-               em.persist(random);
-               System.out.println(random);
-           }
+            for (int i=0;i<darab;i++) {
+                em.persist(RandomPerson());
+            }
             em.getTransaction().commit();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        } finally {
+            em.close();
+        }
+    }
+
+    private static List<Person> getPeople() {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT l FROM Person l ORDER BY l.id",Person.class).getResultList();
         } finally {
             em.close();
         }
     }
 
     public static void main(String[] args) throws ParseException {
-        createPeopleSet();
+        CreatePeopleSet(100);
+
+        getPeople().forEach(System.out::println);
+
         emf.close();
     }
 
-
-    public static Date between(Date from, Date to) throws IllegalArgumentException {
-        Faker faker = new Faker();
-        if (to.before(from)) {
-            throw new IllegalArgumentException("Invalid date range, the upper bound date is before the lower bound.");
-        }
-        if (from.equals(to)) {
-            return from;
-        }
-        long offsetMillis = faker.random().nextLong(to.getTime() - from.getTime());
-        return new Date(from.getTime() + offsetMillis);
-    }
-
     public static Person RandomPerson() throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        java.util.Date from = format.parse("1900-01-01");
-        java.util.Date to = format.parse("2020-12-31");
-        java.util.Date date = between(from, to);
-        java.time.LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
         Faker faker = new Faker();
         Person person = new Person();
+
+        Date date;
+        date = faker.date().birthday();
+        java.time.LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         person.setName(faker.name().name());
         person.setDob( localDate);
